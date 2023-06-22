@@ -242,6 +242,8 @@ usage() {
     [-k | --kde]
     [-x | --xfce]
     [-g | --gnome]
+    [-y | --sway]
+    [-yb | --swaybg]
     [-m | --monitors <monitor count (nitrogen)>]
     [-n | --nitrogen]
     [-sa | --save]    <Save current image to pictures directory>
@@ -313,6 +315,29 @@ sway_cmd() {
     fi
     swaymsg output "*" bg "$WALLPAPER" "$MODE"
 
+}
+
+swaybg_cmd() {
+    if [ -n "$BGTYPE" ]; then
+        if [ "$BGTYPE" == 'bg-center' ]; then
+            MODE="center"
+        fi
+        if [ "$BGTYPE" == 'bg-fill' ]; then
+            MODE="fill"
+        fi
+        if [ "$BGTYPE" == 'bg-max' ]; then
+            MODE="fit"
+        fi
+        if [ "$BGTYPE" == 'bg-scale' ]; then
+            MODE="stretch"
+        fi
+        if [ "$BGTYPE" == 'bg-tile' ]; then
+            MODE="tile"
+        fi
+    else
+        MODE="stretch"
+    fi
+    swaybg --output "*" --image "$WALLPAPER" --mode "$MODE"
 }
 
 nitrogen_cmd() {
@@ -415,9 +440,10 @@ XFCE=false
 GNOME=false
 NITROGEN=false
 SWAY=false
+SWAYBG=false
 MONITORS=1
 # SC2034
-PARSED_ARGUMENTS=$(getopt -a -n "$0" -o h:w:s:l:b:r:a:c:d:m:pLknxgy:sa --long search:,height:,width:,fehbg:,fehopt:,artist:,subreddit:,directory:,monitors:,termcolor:,lighwal:,kde,nitrogen,xfce,gnome,sway,save -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n "$0" -o h:w:s:l:b:r:a:c:d:m:pLknxgyY:sa --long search:,height:,width:,fehbg:,fehopt:,artist:,subreddit:,directory:,monitors:,termcolor:,lighwal:,kde,nitrogen,xfce,gnome,sway,swaybg,save -- "$@")
 
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
@@ -498,6 +524,10 @@ while :; do
         SWAY=true
         shift
         ;;
+    -Y | --swaybg)
+        SWAYBG=true
+        shift
+        ;;
     -- | '')
         shift
         break
@@ -533,6 +563,8 @@ elif [ "$NITROGEN" = true ]; then
     nitrogen_cmd
 elif [ "$SWAY" = true ]; then
     sway_cmd
+elif [ "$SWAYBG" = true ]; then
+    swaybg_cmd
 else
     feh_cmd >/dev/null 2>&1
 fi
